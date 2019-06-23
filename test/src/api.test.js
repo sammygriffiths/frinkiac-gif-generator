@@ -36,7 +36,7 @@ describe('API', () => {
         it('gets subtitles from frinkiac', () => {
             const axios = {
                 get: sinon.stub().resolves({data: []})
-            }
+            };
             let episode = 'S07E21';
             let timestamp = '493041';
             let expectedUrl = 'https://frinkiac.com/api/caption?e=' + episode + '&t=' + timestamp
@@ -63,7 +63,7 @@ describe('API', () => {
                         Subtitles: subtitles
                     }
                 })
-            }
+            };
 
             let result = await api(axios).getSubtitlesFromSearchResult({
                 Episode: episode,
@@ -99,6 +99,82 @@ describe('API', () => {
                     expect(err.message).to.equal('Subtitle with timestamp "30" not found');
                     done();
                 })
+        });
+    });
+    describe('getGifFromSubtitle', () => {
+        it('gets gif url from frinkiac', () => {
+            let subtitle = {
+                Episode: 'S07E21',
+                StartTimestamp: '1',
+                EndTimestamp: '2',
+                Content: ''
+            };
+            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=';
+
+            const axios = {
+                get: sinon.stub().resolves({
+                    request: {
+                        res: {
+                            responseUrl: 'gif'
+                        }
+                    }
+                })
+            };
+
+            api(axios).getGifFromSubtitle(subtitle);
+
+            sinon.assert.calledWith(axios.get, expectedUrl);
+        });
+
+        it('base64 encodes the text', () => {
+            let text = 'This is the text for the gif';
+            let subtitle = {
+                Episode: 'S07E21',
+                StartTimestamp: '1',
+                EndTimestamp: '2',
+                Content: text
+            };
+
+            let base64Text = 'VGhpcyBpcyB0aGUgdGV4dCBmb3IgdGhlIGdpZg==';
+            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=' + base64Text;
+
+            const axios = {
+                get: sinon.stub().resolves({
+                    request: {
+                        res: {
+                            responseUrl: 'gif'
+                        }
+                    }
+                })
+            };
+
+            api(axios).getGifFromSubtitle(subtitle);
+
+            sinon.assert.calledWith(axios.get, expectedUrl);
+        });
+
+        it('resolves with a gif URL', async () => {
+            let subtitle = {
+                Episode: 'S07E21',
+                StartTimestamp: '1',
+                EndTimestamp: '2',
+                Content: ''
+            };
+            let expectedReturn = 'http://www.url.com/simpsons.gif';
+
+            const axios = {
+                get: sinon.stub().resolves({
+                    request: {
+                        res: {
+                            responseUrl: expectedReturn
+                        }
+                    }
+                })
+            };
+
+            let result = await api(axios).getGifFromSubtitle(subtitle);
+
+            expect(result).to.equal(expectedReturn);
         });
     });
 });
