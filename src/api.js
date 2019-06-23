@@ -11,6 +11,10 @@ const api = axios => {
                     return reject(err);
                 }
 
+                if (!Array.isArray(searchResponse.data) || !searchResponse.data.length) {
+                    return reject(new Error('No results found for "'+term+'"'));
+                }
+
                 return resolve(searchResponse.data[0]);
             });
         },
