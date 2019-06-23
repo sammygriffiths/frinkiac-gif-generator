@@ -1,5 +1,5 @@
-const api = axios => {
-    return {
+module.exports = axios => {
+    const api = {
         search: term => {
             let query = encodeURIComponent(term);
             let searchResponse;
@@ -80,6 +80,6 @@ const api = axios => {
             });
         }
     }
-}
 
-module.exports = api;
+    return api;
+}

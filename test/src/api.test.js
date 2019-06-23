@@ -177,4 +177,14 @@ describe('API', () => {
             expect(result).to.equal(expectedReturn);
         });
     });
+    describe('generateGif', () => {
+        it('gets the appropriate gif from frinkiac', async () => {
+            let expectedUrl = 'https://frinkiac.com/video/S10E07/MI9Rd6R0gNkiZnr2cFb_wA8vC3k=.gif';
+            let term = 'super nintendo chalmers';
+            
+            let result = await api(require('axios')).generateGif(term);
+
+            expect(result).to.equal(expectedUrl);
+        }).timeout(10000);
+    });
 });
