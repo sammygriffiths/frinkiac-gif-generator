@@ -127,7 +127,32 @@ describe('API', () => {
         });
 
         it('base64 encodes the text', () => {
-            let text = 'This is the text for the gif';
+            let subtitle = {
+                Episode: 'S07E21',
+                StartTimestamp: '1',
+                EndTimestamp: '2',
+                Content: 'text'
+            };
+
+            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=dGV4dA==';
+
+            const axios = {
+                get: sinon.stub().resolves({
+                    request: {
+                        res: {
+                            responseUrl: 'gif'
+                        }
+                    }
+                })
+            };
+
+            api(axios).getGifFromSubtitle(subtitle);
+
+            sinon.assert.calledWith(axios.get, expectedUrl);
+        });
+
+        it('adds line breaks in the text where appropriate', () => {
+            let text = 'This is a long piece of text that needs to be split on to multiple lines';
             let subtitle = {
                 Episode: 'S07E21',
                 StartTimestamp: '1',
@@ -135,8 +160,8 @@ describe('API', () => {
                 Content: text
             };
 
-            let base64Text = 'VGhpcyBpcyB0aGUgdGV4dCBmb3IgdGhlIGdpZg==';
-            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=' + base64Text;
+            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgdGV4dCAKdGhhdCBuZWVkcyB0byBiZSBzcGxpdCBvbiB0byAKbXVsdGlwbGUgbGluZXM=';
+            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=' + expectedText;
 
             const axios = {
                 get: sinon.stub().resolves({

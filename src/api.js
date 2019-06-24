@@ -1,3 +1,5 @@
+const wrap = require('word-wrap');
+
 module.exports = axios => {
     const api = {
         search: term => {
@@ -51,7 +53,8 @@ module.exports = axios => {
         },
         getGifFromSubtitle: subtitle => {
             let gif;
-            let subtitleText = Buffer.from(subtitle.Content).toString('base64');
+            let wrappedText = wrap(subtitle.Content, {width: 28, indent: ''});
+            let subtitleText = Buffer.from(wrappedText).toString('base64');
 
             return new Promise(async (resolve, reject) => {
                 try {
