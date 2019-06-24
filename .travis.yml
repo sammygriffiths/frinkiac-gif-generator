@@ -1,3 +1,11 @@
 language: node_js
 node_js:
 - node
+deploy:
+  provider: npm
+  email: sammy+npm@sammygriffiths.co.uk
+  api_key:
+    secure: eS7lA5BaHZzuRrQUtO/+1MGiDaiR+F8Sr+u86rf4XSnX9Vm6i7ZKErTDSmQhygl4nABhl+6Xzq6Sqef6rgi2Fzoa0Y3WpYqBm5HQO/nGCThb3bc5ZH5+IjPO0bIbCplSJIcnBU1XXY+sM+WDeqVA++KU5N6e8Vi1vioEBNkXghdU3MTqah4v1B7TxoouxiOYx9tpDjvdPOykYCmgjeXXs6LLi+1qu176EPlcfxmAD5wBxFkPDKo6MgAeUOE+ex81SZZz2L51BkHgRc//7GDmd8KrGB6ZBYAYgcx/HpVaMoEaOvFYVmuJ8Xb5HYYQs3bVtlQA7vMPOdc1vC6rECM3hTeahJxix5FktgY/v6sZJZi7yzZvJoIjHirsVwWbYs7yvheZZ+djAntKF6f5TDjvHgxlZXLbq0ANZP/eThfh2B3G4BMyp+BvnYo9Is5v7ne/gHf5zoqrKU6O+zIArKfn56gCtFzhuHbutWd8au5rR8Dnotub29HwTEOc904FgZT+H6tEIUhkd7cEdGtGsz9yNTkMQXkzh5XYWJgc9FEVY0iQgc6Ge8dazf1fzIQFYCMj6w9/heu54IVU2kP2S72Td4Jz783r7BMLv9ya6sQ4FcgyrYMef2b72Xfx/SkD7XlVtdEYuz2B4bYx8mvnhnmgHEBGj307P8F3PRpYAPfrGSg=
+  on:
+    branch: master
+    repo: sammygriffiths/frinkiac-gif-generator
