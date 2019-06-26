@@ -126,33 +126,8 @@ describe('API', () => {
             sinon.assert.calledWith(axios.get, expectedUrl);
         });
 
-        it('base64 encodes the text', () => {
-            let subtitle = {
-                Episode: 'S07E21',
-                StartTimestamp: '1',
-                EndTimestamp: '2',
-                Content: 'text'
-            };
-
-            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=dGV4dA==';
-
-            const axios = {
-                get: sinon.stub().resolves({
-                    request: {
-                        res: {
-                            responseUrl: 'gif'
-                        }
-                    }
-                })
-            };
-
-            api(axios).getGifFromSubtitle(subtitle);
-
-            sinon.assert.calledWith(axios.get, expectedUrl);
-        });
-
-        it('adds line breaks in the text where appropriate', () => {
-            let text = 'This is a long piece of text that needs to be split on to multiple lines';
+        it('formats the subtitle text', () => {
+            let text = 'This is a long piece of text that needs to be split on to multiple lines?????>>>>>';
             let subtitle = {
                 Episode: 'S07E21',
                 StartTimestamp: '1',
@@ -160,7 +135,7 @@ describe('API', () => {
                 Content: text
             };
 
-            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgdGV4dCAKdGhhdCBuZWVkcyB0byBiZSBzcGxpdCBvbiB0byAKbXVsdGlwbGUgbGluZXM=';
+            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgdGV4dCAKdGhhdCBuZWVkcyB0byBiZSBzcGxpdCBvbiB0byAKbXVsdGlwbGUgbGluZXM_Pz8_Pz4-Pj4-';
             let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=' + expectedText;
 
             const axios = {
@@ -206,6 +181,15 @@ describe('API', () => {
         it('gets the appropriate gif from frinkiac', async () => {
             let expectedUrl = 'https://frinkiac.com/video/S10E07/MI9Rd6R0gNkiZnr2cFb_wA8vC3k=.gif';
             let term = 'super nintendo chalmers';
+            
+            let result = await api(require('axios')).generateGif(term);
+
+            expect(result).to.equal(expectedUrl);
+        }).timeout(10000);
+
+        it('gets the appropriate gif from frinkiac even with bad characters in the base64 text', async () => {
+            let expectedUrl = 'https://frinkiac.com/video/S05E14/ZqdztxjYgowA0n-pHNj6OVp6Ymc=.gif';
+            let term = 'my spidey sense is tingling';
             
             let result = await api(require('axios')).generateGif(term);
 
