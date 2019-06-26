@@ -9,3 +9,4 @@ deploy:
   on:
     branch: master
     repo: sammygriffiths/frinkiac-gif-generator
+    tags: true
