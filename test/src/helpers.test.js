@@ -70,7 +70,63 @@ describe('helpers', () => {
     });
 
     describe('checkOtherSubtitleMatches', () => {
+        it('adds in the previous subtitle if it has a high match', () => {
+            let subtitles = [
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This' },
+                { "StartTimestamp": 3, "EndTimestamp": 10, Content: 'is content!' },
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'Nope' },
+            ];
+            let term = 'This';
 
+            let result = helpers.checkOtherSubtitleMatches(term, subtitles, 1);
+
+            expect(result.StartTimestamp).to.equal(1);
+            expect(result.EndTimestamp).to.equal(10);
+            expect(result.Content).to.equal('This is content!');
+        });
+        it('adds in the next subtitle if it has a high match', () => {
+            let subtitles = [
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'Nope' },
+                { "StartTimestamp": 3, "EndTimestamp": 10, Content: 'This' },
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'is content!' },
+            ];
+            let term = 'is content!';
+
+            let result = helpers.checkOtherSubtitleMatches(term, subtitles, 1);
+
+            expect(result.StartTimestamp).to.equal(3);
+            expect(result.EndTimestamp).to.equal(20);
+            expect(result.Content).to.equal('This is content!');
+        });
+        it('adds in both subtitles if they have high matches', () => {
+            let subtitles = [
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This' },
+                { "StartTimestamp": 3, "EndTimestamp": 10, Content: 'is' },
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'content!' },
+            ];
+            let term = 'This is content!';
+
+            let result = helpers.checkOtherSubtitleMatches(term, subtitles, 1);
+
+            expect(result.StartTimestamp).to.equal(1);
+            expect(result.EndTimestamp).to.equal(20);
+            expect(result.Content).to.equal('This is content!');
+        });
+        it('doesn\'t add in any extra subtitles if there are no matches', () => {
+            let subtitles = [
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'Not this' },
+                { "StartTimestamp": 3, "EndTimestamp": 10, Content: 'This is content!' },
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'Not this either' },
+            ];
+            let term = 'Search term';
+
+            let result = helpers.checkOtherSubtitleMatches(term, subtitles, 1);
+
+            expect(result.StartTimestamp).to.equal(3);
+            expect(result.EndTimestamp).to.equal(10);
+            expect(result.Content).to.equal('This is content!');
+
+        });
     });
 
     describe('combineSubtitles', () => {
@@ -87,7 +143,7 @@ describe('helpers', () => {
             expect(result.EndTimestamp).to.equal(50);
             expect(result.Content).to.equal('This is content!');
         });
-        it.only('orders subtitles before combining them', () => {
+        it('orders subtitles before combining them', () => {
             let subtitles = [
                 { "StartTimestamp": 20, "EndTimestamp": 50, Content: 'content!' },
                 { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'is' },

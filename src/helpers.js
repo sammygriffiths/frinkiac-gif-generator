@@ -1,4 +1,5 @@
 const wrap = require('word-wrap');
+const stringSimilarity = require('string-similarity');
 
 const helpers = {
     formatSubtitleText: (text) => {
@@ -27,8 +28,28 @@ const helpers = {
             }
         });
     },
-    checkOtherSubtitleMatches: (subtitles, chosenSubtitleIndex) => {
+    checkOtherSubtitleMatches: (term, subtitles, chosenSubtitleIndex, requiredMatchScore = 0.2) => {
+        let beforeSubtitle = subtitles[chosenSubtitleIndex - 1];
+        let beforeMatch = stringSimilarity.compareTwoStrings(beforeSubtitle.Content.toLowerCase(), term);
 
+        let afterSubtitle = subtitles[chosenSubtitleIndex + 1];
+        let afterMatch = stringSimilarity.compareTwoStrings(afterSubtitle.Content.toLowerCase(), term);
+
+        let toCombine = [subtitles[chosenSubtitleIndex]];
+
+        if (beforeMatch > requiredMatchScore) {
+            toCombine.unshift(beforeSubtitle);
+        }
+
+        if (afterMatch > requiredMatchScore) {
+            toCombine.push(afterSubtitle);
+        }
+
+        if (toCombine.length > 1) {
+            return helpers.combineSubtitles(toCombine);
+        }
+
+        return subtitles[chosenSubtitleIndex];
     },
     combineSubtitles: (subtitles) => {
         subtitles.sort((a, b) => a.StartTimestamp - b.StartTimestamp);
