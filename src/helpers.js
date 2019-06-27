@@ -29,7 +29,7 @@ const helpers = {
             return reject(new Error('Subtitle with timestamp "' + timestamp + '" not found'));
         });
     },
-    checkOtherSubtitleMatches: (term, subtitles, chosenSubtitleIndex, requiredMatchScore = 0.2) => {
+    checkOtherSubtitleMatches: (term, subtitles, chosenSubtitleIndex, requiredMatchScore = 0.22) => {
         let toCombine = [subtitles[chosenSubtitleIndex]];
 
         if (subtitles.length > 1 && chosenSubtitleIndex > 0) {

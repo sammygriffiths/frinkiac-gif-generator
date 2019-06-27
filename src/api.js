@@ -59,7 +59,7 @@ module.exports = axios => {
                 try {
                     let searchResult = await api.search(term, axios);
                     let subtitles = await api.getSubtitlesFromSearchResult(searchResult, axios);
-                    let chosenSubtitle = await helpers.getAppropriateSubtitle(subtitles, searchResult.Timestamp);
+                    let chosenSubtitle = await helpers.getAppropriateSubtitle(term, subtitles, searchResult.Timestamp);
                     gif = await api.getGifFromSubtitle(chosenSubtitle, axios);
                 } catch (err) {
                     return reject(err);
