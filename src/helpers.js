@@ -27,6 +27,24 @@ const helpers = {
             }
         });
     },
+    checkOtherSubtitleMatches: (subtitles, chosenSubtitleIndex) => {
+
+    },
+    combineSubtitles: (subtitles) => {
+        subtitles.sort((a, b) => a.StartTimestamp - b.StartTimestamp);
+
+        let content = '';
+
+        for (let i = 0; i < subtitles.length; i++) {
+            content += subtitles[i].Content + ' ';
+        }
+
+        return {
+            StartTimestamp: subtitles[0].StartTimestamp,
+            EndTimestamp: subtitles[subtitles.length - 1].EndTimestamp,
+            Content: content.trim()
+        };
+    }
 }
 
 module.exports = helpers;
