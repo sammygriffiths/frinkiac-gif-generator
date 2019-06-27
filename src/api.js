@@ -22,10 +22,15 @@ module.exports = axios => {
         },
         getSubtitlesFromSearchResult: result => {
             let subtitleResponse;
+            let episode = result.Episode;
+            let timestamp = result.Timestamp;
+            let startTimestamp = Number(timestamp) - 10000;
+            let endTimestamp = Number(timestamp) + 10000;
 
             return new Promise(async (resolve, reject) => {
                 try {
-                    subtitleResponse = await axios.get('https://frinkiac.com/api/caption?e=' + result.Episode + '&t=' + result.Timestamp);
+                    let url = `https://frinkiac.com/api/episode/${episode}/${startTimestamp}/${endTimestamp}`;
+                    subtitleResponse = await axios.get(url);
                 } catch (err) {
                     return reject(err);
                 }
@@ -72,7 +77,7 @@ module.exports = axios => {
                 try {
                     let searchResult = await api.search(term, axios);
                     let subtitles = await api.getSubtitlesFromSearchResult(searchResult, axios);
-                    let chosenSubtitle = await api.getAppropriateSubtitle(subtitles, searchResult.Timestamp, axios);
+                    let chosenSubtitle = await api.getAppropriateSubtitle(subtitles, searchResult.Timestamp);
                     gif = await api.getGifFromSubtitle(chosenSubtitle, axios);
                 } catch (err) {
                     return reject(err);

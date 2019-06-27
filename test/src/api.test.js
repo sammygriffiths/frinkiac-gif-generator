@@ -39,7 +39,9 @@ describe('API', () => {
             };
             let episode = 'S07E21';
             let timestamp = '493041';
-            let expectedUrl = 'https://frinkiac.com/api/caption?e=' + episode + '&t=' + timestamp
+            let startTimestamp = Number(timestamp) - 10000;
+            let endTimestamp = Number(timestamp) + 10000;
+            let expectedUrl = `https://frinkiac.com/api/episode/${episode}/${startTimestamp}/${endTimestamp}`;
 
             api(axios).getSubtitlesFromSearchResult({
                 Episode: episode,
