@@ -43,24 +43,40 @@ describe('helpers', () => {
     describe('getAppropriateSubtitle', () => {
         it('resolves with the appropriate subtitle', async () => {
             let subtitles = [
-                { "StartTimestamp": 1, "EndTimestamp": 3 },
-                { "StartTimestamp": 10, "EndTimestamp": 20 }
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'no' },
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'content' }
             ];
             let timestamp = 15;
 
-            let result = await helpers.getAppropriateSubtitle(subtitles, timestamp);
+            let result = await helpers.getAppropriateSubtitle('Content', subtitles, timestamp);
 
             expect(result).to.equal(subtitles[1]);
         });
 
+        it('adds in other matching subtitles', async () => {
+            let subtitles = [
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This' },
+                { "StartTimestamp": 3, "EndTimestamp": 10, Content: 'is' },
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'content!' },
+            ];
+            let term = 'This is content!';
+
+            let result = await helpers.getAppropriateSubtitle(term, subtitles, 7);
+
+            expect(result.StartTimestamp).to.equal(1);
+            expect(result.EndTimestamp).to.equal(20);
+            expect(result.Content).to.equal('This is content!');
+
+        })
+
         it('rejects when a matching subtitle isn\'t found', (done) => {
             let subtitles = [
-                { "StartTimestamp": 1, "EndTimestamp": 3 },
-                { "StartTimestamp": 10, "EndTimestamp": 20 }
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: "nope" },
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: "no" }
             ];
             let timestamp = 30;
 
-            helpers.getAppropriateSubtitle(subtitles, timestamp)
+            helpers.getAppropriateSubtitle('', subtitles, timestamp)
                 .then(() => done(new Error))
                 .catch(err => {
                     expect(err.message).to.equal('Subtitle with timestamp "30" not found');
@@ -84,6 +100,7 @@ describe('helpers', () => {
             expect(result.EndTimestamp).to.equal(10);
             expect(result.Content).to.equal('This is content!');
         });
+
         it('adds in the next subtitle if it has a high match', () => {
             let subtitles = [
                 { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'Nope' },
@@ -98,6 +115,7 @@ describe('helpers', () => {
             expect(result.EndTimestamp).to.equal(20);
             expect(result.Content).to.equal('This is content!');
         });
+
         it('adds in both subtitles if they have high matches', () => {
             let subtitles = [
                 { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This' },
@@ -112,6 +130,7 @@ describe('helpers', () => {
             expect(result.EndTimestamp).to.equal(20);
             expect(result.Content).to.equal('This is content!');
         });
+
         it('doesn\'t add in any extra subtitles if there are no matches', () => {
             let subtitles = [
                 { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'Not this' },
@@ -125,7 +144,6 @@ describe('helpers', () => {
             expect(result.StartTimestamp).to.equal(3);
             expect(result.EndTimestamp).to.equal(10);
             expect(result.Content).to.equal('This is content!');
-
         });
     });
 

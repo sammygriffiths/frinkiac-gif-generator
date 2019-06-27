@@ -10,11 +10,12 @@ const helpers = {
 
         return replacedPlusText;
     },
-    getAppropriateSubtitle: (subtitles, timestamp) => {
+    getAppropriateSubtitle: (term, subtitles, timestamp) => {
         return new Promise((resolve, reject) => {
             let chosenSubtitle;
+            let i = 0;
 
-            for (let i = 0; i < subtitles.length; i++) {
+            for (; i < subtitles.length; i++) {
                 if (subtitles[i].StartTimestamp < timestamp && subtitles[i].EndTimestamp > timestamp) {
                     chosenSubtitle = subtitles[i];
                     break;
@@ -22,27 +23,31 @@ const helpers = {
             }
 
             if (chosenSubtitle) {
-                return resolve(chosenSubtitle);
-            } else {
-                return reject(new Error('Subtitle with timestamp "' + timestamp + '" not found'));
+                return resolve(helpers.checkOtherSubtitleMatches(term, subtitles, i));
             }
+
+            return reject(new Error('Subtitle with timestamp "' + timestamp + '" not found'));
         });
     },
     checkOtherSubtitleMatches: (term, subtitles, chosenSubtitleIndex, requiredMatchScore = 0.2) => {
-        let beforeSubtitle = subtitles[chosenSubtitleIndex - 1];
-        let beforeMatch = stringSimilarity.compareTwoStrings(beforeSubtitle.Content.toLowerCase(), term);
-
-        let afterSubtitle = subtitles[chosenSubtitleIndex + 1];
-        let afterMatch = stringSimilarity.compareTwoStrings(afterSubtitle.Content.toLowerCase(), term);
-
         let toCombine = [subtitles[chosenSubtitleIndex]];
 
-        if (beforeMatch > requiredMatchScore) {
-            toCombine.unshift(beforeSubtitle);
+        if (subtitles.length > 1 && chosenSubtitleIndex > 0) {
+            let beforeSubtitle = subtitles[chosenSubtitleIndex - 1];
+            let beforeMatch = stringSimilarity.compareTwoStrings(beforeSubtitle.Content.toLowerCase(), term);
+
+            if (beforeMatch > requiredMatchScore) {
+                toCombine.unshift(beforeSubtitle);
+            }
         }
 
-        if (afterMatch > requiredMatchScore) {
-            toCombine.push(afterSubtitle);
+        if (subtitles.length > (chosenSubtitleIndex + 1)) {
+            let afterSubtitle = subtitles[chosenSubtitleIndex + 1];
+            let afterMatch = stringSimilarity.compareTwoStrings(afterSubtitle.Content.toLowerCase(), term);
+
+            if (afterMatch > requiredMatchScore) {
+                toCombine.push(afterSubtitle);
+            }
         }
 
         if (toCombine.length > 1) {
