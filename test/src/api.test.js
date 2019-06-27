@@ -169,5 +169,14 @@ describe('API', () => {
 
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
+
+        it('gets the appropriate gif from frinkiac with multiple captions', async () => {
+            let expectedUrl = 'https://frinkiac.com/video/S06E08/FudWxOoaKmj_5Sk8zzxbYtTqot4=.gif';
+            let term = "We'd ask you to come, but... You know...";
+
+            let result = await api(require('axios')).generateGif(term);
+
+            expect(result).to.equal(expectedUrl);
+        }).timeout(10000);
     });
 });

@@ -150,9 +150,9 @@ describe('helpers', () => {
     describe('combineSubtitles', () => {
         it('combines subtitles', () => {
             let subtitles = [
-                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This' },
-                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'is' },
-                { "StartTimestamp": 20, "EndTimestamp": 50, Content: 'content!' }
+                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This', Episode: 's01e01'},
+                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'is', Episode: 's01e01' },
+                { "StartTimestamp": 20, "EndTimestamp": 50, Content: 'content!', Episode: 's01e01' }
             ];
 
             let result = helpers.combineSubtitles(subtitles);
@@ -160,6 +160,7 @@ describe('helpers', () => {
             expect(result.StartTimestamp).to.equal(1);
             expect(result.EndTimestamp).to.equal(50);
             expect(result.Content).to.equal('This is content!');
+            expect(result.Episode).to.equal('s01e01');
         });
         it('orders subtitles before combining them', () => {
             let subtitles = [

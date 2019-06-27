@@ -68,7 +68,8 @@ const helpers = {
         return {
             StartTimestamp: subtitles[0].StartTimestamp,
             EndTimestamp: subtitles[subtitles.length - 1].EndTimestamp,
-            Content: content.trim()
+            Content: content.trim(),
+            Episode: subtitles[0].Episode,
         };
     }
 }
