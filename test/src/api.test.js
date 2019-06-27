@@ -39,7 +39,9 @@ describe('API', () => {
             };
             let episode = 'S07E21';
             let timestamp = '493041';
-            let expectedUrl = 'https://frinkiac.com/api/caption?e=' + episode + '&t=' + timestamp
+            let startTimestamp = Number(timestamp) - 10000;
+            let endTimestamp = Number(timestamp) + 10000;
+            let expectedUrl = `https://frinkiac.com/api/episode/${episode}/${startTimestamp}/${endTimestamp}`;
 
             api(axios).getSubtitlesFromSearchResult({
                 Episode: episode,
@@ -72,34 +74,6 @@ describe('API', () => {
 
             expect(result).to.equal(subtitles);
         })
-    });
-    describe('getAppropriateSubtitle', () => {
-        it('resolves with the appropriate subtitle', async () => {
-            let subtitles = [
-                {"StartTimestamp": 1, "EndTimestamp": 3},
-                {"StartTimestamp": 10, "EndTimestamp": 20}
-            ];
-            let timestamp = 15;
-
-            let result = await api({}).getAppropriateSubtitle(subtitles, timestamp);
-
-            expect(result).to.equal(subtitles[1]);
-        });
-
-        it('rejects when a matching subtitle isn\'t found', (done) => {
-            let subtitles = [
-                {"StartTimestamp": 1, "EndTimestamp": 3},
-                {"StartTimestamp": 10, "EndTimestamp": 20}
-            ];
-            let timestamp = 30;
-
-            api({}).getAppropriateSubtitle(subtitles, timestamp)
-                .then(() => done(new Error))
-                .catch(err => {
-                    expect(err.message).to.equal('Subtitle with timestamp "30" not found');
-                    done();
-                })
-        });
     });
     describe('getGifFromSubtitle', () => {
         it('gets gif url from frinkiac', () => {
@@ -191,6 +165,15 @@ describe('API', () => {
             let expectedUrl = 'https://frinkiac.com/video/S05E14/ZqdztxjYgowA0n-pHNj6OVp6Ymc=.gif';
             let term = 'my spidey sense is tingling';
             
+            let result = await api(require('axios')).generateGif(term);
+
+            expect(result).to.equal(expectedUrl);
+        }).timeout(10000);
+
+        it('gets the appropriate gif from frinkiac with multiple captions', async () => {
+            let expectedUrl = 'https://frinkiac.com/video/S06E08/FudWxOoaKmj_5Sk8zzxbYtTqot4=.gif';
+            let term = "We'd ask you to come, but... You know...";
+
             let result = await api(require('axios')).generateGif(term);
 
             expect(result).to.equal(expectedUrl);

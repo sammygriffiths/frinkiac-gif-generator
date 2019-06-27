@@ -22,34 +22,21 @@ module.exports = axios => {
         },
         getSubtitlesFromSearchResult: result => {
             let subtitleResponse;
+            let episode = result.Episode;
+            let timestamp = result.Timestamp;
+            let startTimestamp = Number(timestamp) - 10000;
+            let endTimestamp = Number(timestamp) + 10000;
 
             return new Promise(async (resolve, reject) => {
                 try {
-                    subtitleResponse = await axios.get('https://frinkiac.com/api/caption?e=' + result.Episode + '&t=' + result.Timestamp);
+                    let url = `https://frinkiac.com/api/episode/${episode}/${startTimestamp}/${endTimestamp}`;
+                    subtitleResponse = await axios.get(url);
                 } catch (err) {
                     return reject(err);
                 }
 
                 return resolve(subtitleResponse.data.Subtitles);
             })
-        },
-        getAppropriateSubtitle: (subtitles, timestamp) => {
-            return new Promise((resolve, reject) => {
-                let chosenSubtitle;
-
-                for (let i = 0; i < subtitles.length; i++) {
-                    if (subtitles[i].StartTimestamp < timestamp && subtitles[i].EndTimestamp > timestamp) {
-                        chosenSubtitle = subtitles[i];
-                        break;
-                    }
-                }
-
-                if (chosenSubtitle) {
-                    return resolve(chosenSubtitle);
-                } else {
-                    return reject(new Error('Subtitle with timestamp "'+timestamp+'" not found'));
-                }
-            });
         },
         getGifFromSubtitle: subtitle => {
             let gif;
@@ -72,7 +59,7 @@ module.exports = axios => {
                 try {
                     let searchResult = await api.search(term, axios);
                     let subtitles = await api.getSubtitlesFromSearchResult(searchResult, axios);
-                    let chosenSubtitle = await api.getAppropriateSubtitle(subtitles, searchResult.Timestamp, axios);
+                    let chosenSubtitle = await helpers.getAppropriateSubtitle(term, subtitles, searchResult.Timestamp);
                     gif = await api.getGifFromSubtitle(chosenSubtitle, axios);
                 } catch (err) {
                     return reject(err);
