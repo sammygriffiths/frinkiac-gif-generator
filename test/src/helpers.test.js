@@ -39,4 +39,33 @@ describe('helpers', () => {
             expect(returnedText).to.equal(expectedText);
         });
     });
+
+    describe('getAppropriateSubtitle', () => {
+        it('resolves with the appropriate subtitle', async () => {
+            let subtitles = [
+                { "StartTimestamp": 1, "EndTimestamp": 3 },
+                { "StartTimestamp": 10, "EndTimestamp": 20 }
+            ];
+            let timestamp = 15;
+
+            let result = await helpers.getAppropriateSubtitle(subtitles, timestamp);
+
+            expect(result).to.equal(subtitles[1]);
+        });
+
+        it('rejects when a matching subtitle isn\'t found', (done) => {
+            let subtitles = [
+                { "StartTimestamp": 1, "EndTimestamp": 3 },
+                { "StartTimestamp": 10, "EndTimestamp": 20 }
+            ];
+            let timestamp = 30;
+
+            helpers.getAppropriateSubtitle(subtitles, timestamp)
+                .then(() => done(new Error))
+                .catch(err => {
+                    expect(err.message).to.equal('Subtitle with timestamp "30" not found');
+                    done();
+                })
+        });
+    });
 });

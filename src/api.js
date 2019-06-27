@@ -38,24 +38,6 @@ module.exports = axios => {
                 return resolve(subtitleResponse.data.Subtitles);
             })
         },
-        getAppropriateSubtitle: (subtitles, timestamp) => {
-            return new Promise((resolve, reject) => {
-                let chosenSubtitle;
-
-                for (let i = 0; i < subtitles.length; i++) {
-                    if (subtitles[i].StartTimestamp < timestamp && subtitles[i].EndTimestamp > timestamp) {
-                        chosenSubtitle = subtitles[i];
-                        break;
-                    }
-                }
-
-                if (chosenSubtitle) {
-                    return resolve(chosenSubtitle);
-                } else {
-                    return reject(new Error('Subtitle with timestamp "'+timestamp+'" not found'));
-                }
-            });
-        },
         getGifFromSubtitle: subtitle => {
             let gif;
             let subtitleText = helpers.formatSubtitleText(subtitle.Content);
@@ -77,7 +59,7 @@ module.exports = axios => {
                 try {
                     let searchResult = await api.search(term, axios);
                     let subtitles = await api.getSubtitlesFromSearchResult(searchResult, axios);
-                    let chosenSubtitle = await api.getAppropriateSubtitle(subtitles, searchResult.Timestamp);
+                    let chosenSubtitle = await helpers.getAppropriateSubtitle(subtitles, searchResult.Timestamp);
                     gif = await api.getGifFromSubtitle(chosenSubtitle, axios);
                 } catch (err) {
                     return reject(err);

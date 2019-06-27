@@ -8,7 +8,25 @@ const helpers = {
         let replacedPlusText = replacedSlashText.replace(/\+/g, '-');
 
         return replacedPlusText;
-    }
+    },
+    getAppropriateSubtitle: (subtitles, timestamp) => {
+        return new Promise((resolve, reject) => {
+            let chosenSubtitle;
+
+            for (let i = 0; i < subtitles.length; i++) {
+                if (subtitles[i].StartTimestamp < timestamp && subtitles[i].EndTimestamp > timestamp) {
+                    chosenSubtitle = subtitles[i];
+                    break;
+                }
+            }
+
+            if (chosenSubtitle) {
+                return resolve(chosenSubtitle);
+            } else {
+                return reject(new Error('Subtitle with timestamp "' + timestamp + '" not found'));
+            }
+        });
+    },
 }
 
 module.exports = helpers;
