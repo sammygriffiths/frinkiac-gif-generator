@@ -1,14 +1,14 @@
 const helpers = require('./helpers');
 
-module.exports = axios => {
+module.exports = (axios, config) => {
     const api = {
-        search: term => {
+        search: (term, url) => {
             let query = encodeURIComponent(term);
             let searchResponse;
 
             return new Promise(async (resolve, reject) => {
                 try {
-                    searchResponse = await axios.get('https://frinkiac.com/api/search?q=' + query);
+                    searchResponse = await axios.get(`https://${url}/api/search?q=${query}`);
                 } catch (err) {
                     return reject(err);
                 }
@@ -20,7 +20,7 @@ module.exports = axios => {
                 return resolve(searchResponse.data[0]);
             });
         },
-        getSubtitlesFromSearchResult: result => {
+        getSubtitlesFromSearchResult: (result, url) => {
             let subtitleResponse;
             let episode = result.Episode;
             let timestamp = result.Timestamp;
@@ -29,8 +29,8 @@ module.exports = axios => {
 
             return new Promise(async (resolve, reject) => {
                 try {
-                    let url = `https://frinkiac.com/api/episode/${episode}/${startTimestamp}/${endTimestamp}`;
-                    subtitleResponse = await axios.get(url);
+                    let fullUrl = `https://${url}/api/episode/${episode}/${startTimestamp}/${endTimestamp}`;
+                    subtitleResponse = await axios.get(fullUrl);
                 } catch (err) {
                     return reject(err);
                 }
@@ -38,13 +38,13 @@ module.exports = axios => {
                 return resolve(subtitleResponse.data.Subtitles);
             })
         },
-        getGifFromSubtitle: subtitle => {
+        getGifFromSubtitle: (subtitle, url) => {
             let gif;
             let subtitleText = helpers.formatSubtitleText(subtitle.Content);
 
             return new Promise(async (resolve, reject) => {
                 try {
-                    gif = await axios.get('https://frinkiac.com/gif/' + subtitle.Episode + '/' + subtitle.StartTimestamp + '/' + subtitle.EndTimestamp + '.gif?b64lines=' + subtitleText);
+                    gif = await axios.get(`https://${url}/gif/${subtitle.Episode}/${subtitle.StartTimestamp}/${subtitle.EndTimestamp}.gif?b64lines=${subtitleText}`);
                 } catch (err) {
                     return reject(err);
                 }
@@ -52,15 +52,21 @@ module.exports = axios => {
                 return resolve(gif.request.res.responseUrl);
             });
         },
-        generateGif: term => {
+        generateGif: (term, site = 'frinkiac') => {
             let gif;
-
+            
             return new Promise(async (resolve, reject) => {
+                let url = config.urls[site];
+
+                if (typeof url === 'undefined') {
+                    return reject(new Error(`Site "${site}" not searchable`));
+                }
+                
                 try {
-                    let searchResult = await api.search(term);
-                    let subtitles = await api.getSubtitlesFromSearchResult(searchResult);
+                    let searchResult = await api.search(term, url);
+                    let subtitles = await api.getSubtitlesFromSearchResult(searchResult, url);
                     let chosenSubtitle = await helpers.getAppropriateSubtitle(term, subtitles, searchResult.Timestamp);
-                    gif = await api.getGifFromSubtitle(chosenSubtitle);
+                    gif = await api.getGifFromSubtitle(chosenSubtitle, url);
                 } catch (err) {
                     return reject(err);
                 }
