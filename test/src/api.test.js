@@ -2,7 +2,18 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const api = require('../../src/api');
 
+let config;
+
 describe('API', () => {
+    beforeEach(() => {
+        config = {
+            urls: {
+                frinkiac: 'frinkiac.com',
+                morbotron: 'morbotron.com'
+            }
+        }
+    });
+
     describe('search', () => {
         it('returns the closest match', async () => {
             const results = [
@@ -14,7 +25,7 @@ describe('API', () => {
                 get: sinon.stub().resolves({data: results})
             };
 
-            let result = await api(axios).search('Unforgettable luncheon');
+            let result = await api(axios, config).search('Unforgettable luncheon', config.urls.frinkiac);
 
             expect(result).to.equal(results[0]);
         });
@@ -24,7 +35,7 @@ describe('API', () => {
                 get: sinon.stub().resolves({data: []})
             };
 
-            api(axios).search('Unforgettable luncheon')
+            api(axios, config).search('Unforgettable luncheon', config.urls.frinkiac)
                 .then(() => done(new Error))
                 .catch(err => {
                     expect(err.message).to.equal('No results found for "Unforgettable luncheon"');
@@ -43,10 +54,10 @@ describe('API', () => {
             let endTimestamp = Number(timestamp) + 10000;
             let expectedUrl = `https://frinkiac.com/api/episode/${episode}/${startTimestamp}/${endTimestamp}`;
 
-            api(axios).getSubtitlesFromSearchResult({
+            api(axios, config).getSubtitlesFromSearchResult({
                 Episode: episode,
                 Timestamp: timestamp
-            });
+            }, config.urls.frinkiac);
 
             sinon.assert.calledWith(axios.get, expectedUrl);
         });
@@ -67,13 +78,13 @@ describe('API', () => {
                 })
             };
 
-            let result = await api(axios).getSubtitlesFromSearchResult({
+            let result = await api(axios, config).getSubtitlesFromSearchResult({
                 Episode: episode,
                 Timestamp: timestamp
-            });
+            }, config.urls.frinkiac);
 
             expect(result).to.equal(subtitles);
-        })
+        });
     });
     describe('getGifFromSubtitle', () => {
         it('gets gif url from frinkiac', () => {
@@ -95,7 +106,7 @@ describe('API', () => {
                 })
             };
 
-            api(axios).getGifFromSubtitle(subtitle);
+            api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
 
             sinon.assert.calledWith(axios.get, expectedUrl);
         });
@@ -122,7 +133,7 @@ describe('API', () => {
                 })
             };
 
-            api(axios).getGifFromSubtitle(subtitle);
+            api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
 
             sinon.assert.calledWith(axios.get, expectedUrl);
         });
@@ -146,7 +157,7 @@ describe('API', () => {
                 })
             };
 
-            let result = await api(axios).getGifFromSubtitle(subtitle);
+            let result = await api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
 
             expect(result).to.equal(expectedReturn);
         });
@@ -156,7 +167,7 @@ describe('API', () => {
             let expectedUrl = 'https://frinkiac.com/video/S10E07/MI9Rd6R0gNkiZnr2cFb_wA8vC3k=.gif';
             let term = 'super nintendo chalmers';
             
-            let result = await api(require('axios')).generateGif(term);
+            let result = await api(require('axios'), config).generateGif(term);
 
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
@@ -165,7 +176,7 @@ describe('API', () => {
             let expectedUrl = 'https://frinkiac.com/video/S05E14/ZqdztxjYgowA0n-pHNj6OVp6Ymc=.gif';
             let term = 'my spidey sense is tingling';
             
-            let result = await api(require('axios')).generateGif(term);
+            let result = await api(require('axios'), config).generateGif(term);
 
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
@@ -174,9 +185,27 @@ describe('API', () => {
             let expectedUrl = 'https://frinkiac.com/video/S06E08/FudWxOoaKmj_5Sk8zzxbYtTqot4=.gif';
             let term = "We'd ask you to come, but... You know...";
 
-            let result = await api(require('axios')).generateGif(term);
+            let result = await api(require('axios'), config).generateGif(term);
 
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
+
+        it('uses the appropriate site from the config', async () => {
+            let expectedUrl = 'https://morbotron.com/video/S02E02/jLCY1cQwrS26ymv6djszozleXmY=.gif';
+            let term = "Robot house";
+
+            let result = await api(require('axios'), config).generateGif(term, 'morbotron');
+
+            expect(result).to.equal(expectedUrl);
+        }).timeout(10000);
+
+        it('rejects with an error if the site doesn\'t exist', (done) => {
+            api({}, config).generateGif('term', 'wrong')
+                .then(() => done(new Error))
+                .catch(err => {
+                    expect(err.message).to.equal('Site "wrong" not searchable');
+                    done();
+                });
+        });
     });
 });
