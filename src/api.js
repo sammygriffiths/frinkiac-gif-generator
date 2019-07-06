@@ -57,10 +57,10 @@ module.exports = axios => {
 
             return new Promise(async (resolve, reject) => {
                 try {
-                    let searchResult = await api.search(term, axios);
-                    let subtitles = await api.getSubtitlesFromSearchResult(searchResult, axios);
+                    let searchResult = await api.search(term);
+                    let subtitles = await api.getSubtitlesFromSearchResult(searchResult);
                     let chosenSubtitle = await helpers.getAppropriateSubtitle(term, subtitles, searchResult.Timestamp);
-                    gif = await api.getGifFromSubtitle(chosenSubtitle, axios);
+                    gif = await api.getGifFromSubtitle(chosenSubtitle);
                 } catch (err) {
                     return reject(err);
                 }
