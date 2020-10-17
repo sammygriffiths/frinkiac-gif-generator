@@ -1,0 +1,82 @@
+name: Tag and deploy new version
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: npm ci
+      - run: npm test
+  get_tag:
+    name: Get Tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
+      tag_exists: ${{ steps.check_tag.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get tag
+        id: get_tag
+        run: |
+          echo "##[set-output name=tag;]$(git log -1 --pretty=%B | tr '\n' ' ' | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+      - name: Check if tag exists
+        uses: mukunku/tag-exists-action@v1.0.0
+        id: check_tag
+        with:
+          tag: v${{ steps.get_tag.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  tag:
+    name: Apply Tag
+    if: ${{ needs.get_tag.outputs.tag_exists == 'false' }}
+    runs-on: ubuntu-latest
+    needs: get_tag
+    steps:
+    - uses: actions/checkout@v2
+    - name: Update package.json
+      uses: jacobtomlinson/gha-find-replace@master
+      with:
+        include: "package.json package-lock.json"
+        find: '"version": "\d+.\d+.\d+"'
+        replace: '"version": "${{ needs.get_tag.outputs.tag }}"'
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v5
+      with:
+        author_name: github-actions
+        message: "Bump version to v${{ needs.get_tag.outputs.tag }}"
+        add: "package.json package-lock.json"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ needs.get_tag.outputs.tag }}
+        release_name: v${{ needs.get_tag.outputs.tag }}
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [get_tag, test]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Node
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: '12'
+        registry-url: https://registry.npmjs.org/
+    - name: Install NPM Packages
+      run: npm ci
+    - name: Deploy Release
+      run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.npm_token}}
