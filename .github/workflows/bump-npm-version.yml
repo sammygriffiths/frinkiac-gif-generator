@@ -21,6 +21,7 @@ jobs:
       uses: EndBug/add-and-commit@v5
       with:
         author_name: github-actions
+        author_email: github-actions@github.com
         message: Bump version to ${{ steps.get_version.outputs.version }}
         add: package.json package-lock.json
       env:
