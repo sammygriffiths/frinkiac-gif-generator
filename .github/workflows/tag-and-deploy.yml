@@ -1,4 +1,4 @@
-name: Tag and deploy new version
+name: tag-and-deploy
 
 on:
   push:
@@ -45,15 +45,15 @@ jobs:
     - name: Update package.json
       uses: jacobtomlinson/gha-find-replace@master
       with:
-        include: "package.json package-lock.json"
-        find: '"version": "\d+.\d+.\d+"'
-        replace: '"version": "${{ needs.get_tag.outputs.tag }}"'
+        include: "package*.json"
+        find: "\"version\": \"\d+\.\d+\.\d+\""
+        replace: "\"version\": \"${{ needs.get_tag.outputs.tag }}\""
     - name: Commit changes
       uses: EndBug/add-and-commit@v5
       with:
         author_name: github-actions
         message: "Bump version to v${{ needs.get_tag.outputs.tag }}"
-        add: "package.json package-lock.json"
+        add: "package*.json"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Create Release
