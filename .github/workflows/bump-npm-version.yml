@@ -15,15 +15,15 @@ jobs:
     - name: Get version
       id: get_version
       run: |
-        git branch --show-current
-        echo "##[set-output name=version;]$(git branch --show-current | sed -e "s/^release\///")"
-    - name: Update npm version
-      run: npm version ${{ steps.get_version.outputs.version }} --git-tag-version=false --allow-same-version
-    - name: Commit changes
-      uses: EndBug/add-and-commit@v5
-      with:
-        author_name: github-actions
-        message: Bump version to ${{ steps.get_version.outputs.version }}
-        add: package.json package-lock.json
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        git rev-parse --abbrev-ref HEAD
+    #     echo "##[set-output name=version;]$(git branch --show-current | sed -e "s/^release\///")"
+    # - name: Update npm version
+    #   run: npm version ${{ steps.get_version.outputs.version }} --git-tag-version=false --allow-same-version
+    # - name: Commit changes
+    #   uses: EndBug/add-and-commit@v5
+    #   with:
+    #     author_name: github-actions
+    #     message: Bump version to ${{ steps.get_version.outputs.version }}
+    #     add: package.json package-lock.json
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
