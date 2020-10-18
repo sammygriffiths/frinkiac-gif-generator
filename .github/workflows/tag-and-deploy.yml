@@ -1,4 +1,4 @@
-name: Tag and deploy new version
+name: tag-and-deploy
 
 on:
   push:
@@ -27,12 +27,12 @@ jobs:
       - name: Get tag
         id: get_tag
         run: |
-          echo "##[set-output name=tag;]$(git log -1 --pretty=%B | tr '\n' ' ' | sed -E 's/.*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+          echo "##[set-output name=tag;]$(git log -1 --pretty=%B | tr '\n' ' ' | sed -E 's/.*(v[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
       - name: Check if tag exists
         uses: mukunku/tag-exists-action@v1.0.0
         id: check_tag
         with:
-          tag: v${{ steps.get_tag.outputs.tag }}
+          tag: ${{ steps.get_tag.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   tag:
@@ -42,17 +42,13 @@ jobs:
     needs: get_tag
     steps:
     - uses: actions/checkout@v2
-    - name: Update package.json
-      uses: jacobtomlinson/gha-find-replace@master
-      with:
-        include: "package.json package-lock.json"
-        find: '"version": "\d+.\d+.\d+"'
-        replace: '"version": "${{ needs.get_tag.outputs.tag }}"'
+    - name: Update npm version
+      run: npm version ${{ needs.get_tag.outputs.tag }} --git-tag-version=false
     - name: Commit changes
       uses: EndBug/add-and-commit@v5
       with:
         author_name: github-actions
-        message: "Bump version to v${{ needs.get_tag.outputs.tag }}"
+        message: "Bump version to ${{ needs.get_tag.outputs.tag }}"
         add: "package.json package-lock.json"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -61,8 +57,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v${{ needs.get_tag.outputs.tag }}
-        release_name: v${{ needs.get_tag.outputs.tag }}
+        tag_name: ${{ needs.get_tag.outputs.tag }}
+        release_name: ${{ needs.get_tag.outputs.tag }}
   deploy:
     name: Deploy
     runs-on: ubuntu-latest

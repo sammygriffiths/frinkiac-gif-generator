@@ -1,4 +1,4 @@
-[![Travis CI](https://travis-ci.com/sammygriffiths/frinkiac-gif-generator.svg?branch=master)](https://travis-ci.com/sammygriffiths/frinkiac-gif-generator)
+[![Build Status](https://github.com/sammygriffiths/frinkiac-gif-generator/workflows/tag-and-deploy/badge.svg)](https://github.com/sammygriffiths/frinkiac-gif-generator/actions)
 
 # Frinkiac GIF Generator
 An un-official package for auto-generating gifs from frinkiac.com or morbotron.com based on a search term.
