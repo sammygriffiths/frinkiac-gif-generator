@@ -15,14 +15,14 @@ jobs:
     - name: Get version
       id: get_version
       run: |
-        echo "##[set-output name=version;]$(echo ${ github.head_ref#refs/heads/release/ })"
-    - name: Update npm version
-      run: npm version ${{ steps.get_version.outputs.version }} --git-tag-version=false --allow-same-version
-    - name: Commit changes
-      uses: EndBug/add-and-commit@v5
-      with:
-        author_name: github-actions
-        message: Bump version to ${{ steps.get_version.outputs.version }}
-        add: package.json package-lock.json
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        echo "##[set-output name=version;]$(echo ${ github.head_ref } | sed -e "s/^release\///")"
+    # - name: Update npm version
+    #   run: npm version ${{ steps.get_version.outputs.version }} --git-tag-version=false --allow-same-version
+    # - name: Commit changes
+    #   uses: EndBug/add-and-commit@v5
+    #   with:
+    #     author_name: github-actions
+    #     message: Bump version to ${{ steps.get_version.outputs.version }}
+    #     add: package.json package-lock.json
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
