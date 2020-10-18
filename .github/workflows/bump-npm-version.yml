@@ -15,6 +15,7 @@ jobs:
     - name: Get version
       id: get_version
       run: |
+        git branch --show-current
         echo "##[set-output name=version;]$(git branch --show-current | sed -e "s/^release\///")"
     - name: Update npm version
       run: npm version ${{ steps.get_version.outputs.version }} --git-tag-version=false --allow-same-version
