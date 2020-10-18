@@ -15,7 +15,7 @@ jobs:
     - name: Get version
       id: get_version
       run: |
-        echo "##[set-output name=version;]$(echo ${GITHUB_REF#refs/heads/release/})"
+        echo "##[set-output name=version;]$(echo ${ GITHUB_HEAD_REF#refs/heads/release/ })"
     - name: Update npm version
       run: npm version ${{ steps.get_version.outputs.version }} --git-tag-version=false --allow-same-version
     - name: Commit changes
