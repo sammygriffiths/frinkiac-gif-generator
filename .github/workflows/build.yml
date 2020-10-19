@@ -1,4 +1,4 @@
-name: tag-and-deploy
+name: build
 
 on:
   push:
