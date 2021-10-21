@@ -1,14 +1,14 @@
 [![Build Status](https://github.com/sammygriffiths/frinkiac-gif-generator/workflows/build/badge.svg)](https://github.com/sammygriffiths/frinkiac-gif-generator/actions)
 
 # Frinkiac GIF Generator
-An un-official package for auto-generating gifs from frinkiac.com or morbotron.com based on a search term.
+An un-official package for auto-generating gifs from frinkiac.com, morbotron.com or masterofallscience.com based on a search term.
 
 ## Installing
 `npm install --save frinkiac-gif-generator`
 
 ## Usage
-This package uses frinkiac.com or morbotron.com to generate a gif based on a piece of dialogue.
-At the moment it is quite basic and only returns one gif based on what Frinkiac/Morbotron thinks is the best match to your dialogue search term. It returns the URL to the gif as a promise.
+This package uses frinkiac.com, morbotron.com or masterofallscience.com to generate a gif based on a piece of dialogue.
+At the moment it is quite basic and only returns one gif based on what Frinkiac/Morbotron/MOAS thinks is the best match to your dialogue search term. It returns the URL to the gif as a promise.
 
 For example:
 ```js
@@ -29,6 +29,11 @@ gifGenerator('Robot house', 'morbotron')
     })
     .catch(console.error);
 ```
+
+**The available sites are:**
+* `frinkiac` - frinkiac.com
+* `morbotron` - morbotron.com
+* `moas` -  masterofallscience.com
 
 ## License
 ISC © [Sammy Griffiths](http://www.sammygriffiths.co.uk)
