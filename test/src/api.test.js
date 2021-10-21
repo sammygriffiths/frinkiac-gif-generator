@@ -1,19 +1,9 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const api = require('../../src/api');
-
-let config;
+const config = require('../../config.json');
 
 describe('API', () => {
-    beforeEach(() => {
-        config = {
-            urls: {
-                frinkiac: 'frinkiac.com',
-                morbotron: 'morbotron.com'
-            }
-        }
-    });
-
     describe('search', () => {
         it('returns the closest match', async () => {
             const results = [
@@ -190,11 +180,20 @@ describe('API', () => {
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
 
-        it('uses the appropriate site from the config', async () => {
+        it('works with morbotron', async () => {
             let expectedUrl = 'https://morbotron.com/video/S02E02/jLCY1cQwrS26ymv6djszozleXmY=.gif';
             let term = "Robot house";
 
             let result = await api(require('axios'), config).generateGif(term, 'morbotron');
+
+            expect(result).to.equal(expectedUrl);
+        }).timeout(10000);
+
+        it('works with master of all science', async () => {
+            let expectedUrl = 'https://masterofallscience.com/video/S01E09/CPfkZIAndLPXjBF-ORpCXjZeNJA=.gif';
+            let term = "You pass butter";
+
+            let result = await api(require('axios'), config).generateGif(term, 'moas');
 
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
