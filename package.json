@@ -17,11 +17,11 @@
   "dependencies": {
     "axios": "^0.21.1",
     "string-similarity": "^3.0.0",
-    "word-wrap": "^1.2.3"
+    "word-wrap": "^1.2.5"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^10.7.3",
     "sinon": "^7.3.2"
   },
   "homepage": "https://github.com/sammygriffiths/frinkiac-gif-generator",
