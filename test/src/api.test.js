@@ -110,7 +110,7 @@ describe('API', () => {
                 Content: text
             };
 
-            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgdGV4dCAKdGhhdCBuZWVkcyB0byBiZSBzcGxpdCBvbiB0byAKbXVsdGlwbGUgbGluZXM_Pz8_Pz4-Pj4-';
+            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgCnRleHQgdGhhdCBuZWVkcyB0byBiZSAKc3BsaXQgb24gdG8gbXVsdGlwbGUgCmxpbmVzPz8_Pz8-Pj4-Pg==';
             let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=' + expectedText;
 
             const axios = {
@@ -154,7 +154,7 @@ describe('API', () => {
     });
     describe('generateGif', () => {
         it('gets the appropriate gif from frinkiac', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S10E07/MI9Rd6R0gNkiZnr2cFb_wA8vC3k=.gif';
+            let expectedUrl = 'https://frinkiac.com/video/S10E07/2BgqWeuWjvumnQewtcAinhUVhXU=.gif';
             let term = 'super nintendo chalmers';
             
             let result = await api(require('axios'), config).generateGif(term);
@@ -172,7 +172,7 @@ describe('API', () => {
         }).timeout(10000);
 
         it('gets the appropriate gif from frinkiac with multiple captions', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S06E08/FudWxOoaKmj_5Sk8zzxbYtTqot4=.gif';
+            let expectedUrl = 'https://frinkiac.com/video/S06E08/CXUO_0Mn1AupcjkdvINxh3hzaSQ=.gif';
             let term = "We'd ask you to come, but... You know...";
 
             let result = await api(require('axios'), config).generateGif(term);
