@@ -14,7 +14,7 @@ describe('helpers', () => {
 
         it('adds line breaks in the text where appropriate', () => {
             let text = 'This is a long piece of text that needs to be split on to multiple lines';
-            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgdGV4dCAKdGhhdCBuZWVkcyB0byBiZSBzcGxpdCBvbiB0byAKbXVsdGlwbGUgbGluZXM=';
+            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgCnRleHQgdGhhdCBuZWVkcyB0byBiZSAKc3BsaXQgb24gdG8gbXVsdGlwbGUgbGluZXM=';
 
             let returnedText = helpers.formatSubtitleText(text);
 
