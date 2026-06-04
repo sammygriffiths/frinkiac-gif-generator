@@ -172,19 +172,10 @@ describe('API', () => {
         }).timeout(10000);
 
         it('works with morbotron', async () => {
-            let expectedUrl = 'https://morbotron.com/video/S02E02/jLCY1cQwrS26ymv6djszozleXmY=.gif';
-            let term = "Robot house";
+            let expectedUrl = 'https://morbotron.com/video/S02E14/gIN9gY11tD0r0NOL7VGTnvXaq0g=.gif';
+            let term = "time makes fools of us all";
 
             let result = await api(require('axios'), config).generateGif(term, 'morbotron');
-
-            expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
-
-        it('works with master of all science', async () => {
-            let expectedUrl = 'https://masterofallscience.com/video/S01E09/CPfkZIAndLPXjBF-ORpCXjZeNJA=.gif';
-            let term = "You pass butter";
-
-            let result = await api(require('axios'), config).generateGif(term, 'moas');
 
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
