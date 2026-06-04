@@ -154,17 +154,8 @@ describe('API', () => {
     });
     describe('generateGif', () => {
         it('gets the appropriate gif from frinkiac', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S10E07/2BgqWeuWjvumnQewtcAinhUVhXU=.gif';
-            let term = 'super nintendo chalmers';
-            
-            let result = await api(require('axios'), config).generateGif(term);
-
-            expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
-
-        it('gets the appropriate gif from frinkiac even with bad characters in the base64 text', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S05E14/ZqdztxjYgowA0n-pHNj6OVp6Ymc=.gif';
-            let term = 'my spidey sense is tingling';
+            let expectedUrl = 'https://frinkiac.com/video/S06E10/zJ24Xxa4Gfpjve910bB-GVezmp0=.gif';
+            let term = 'we\'re through the looking glass';
             
             let result = await api(require('axios'), config).generateGif(term);
 
