@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha test/src --recursive --ignore 'test/src/live/**/*.test.js'",
+    "test": "mocha test/src --recursive --ignore \"test/src/live/**/*.test.js\"",
     "test:live": "mocha test/src/live --recursive --timeout 10000"
   },
   "author": {
