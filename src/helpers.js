@@ -1,4 +1,3 @@
-const wrap = require('word-wrap');
 const stringSimilarity = require('string-similarity');
 
 const helpers = {
