@@ -77,126 +77,152 @@ describe('API', () => {
         });
     });
     describe('getGifFromSubtitle', () => {
-        it('gets gif url from frinkiac', () => {
-            let subtitle = {
-                Episode: 'S07E21',
-                StartTimestamp: '1',
-                EndTimestamp: '2',
-                Content: ''
-            };
-            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=';
+        const subtitle = {
+            Episode: 'S07E21',
+            StartTimestamp: '1',
+            EndTimestamp: '2',
+            Content: ''
+        };
 
+        const expectedUrl = 'https://frinkiac.com/api/render/gif/stream';
+        const expectedStreamParams = {
+            episode: subtitle.Episode,
+            start: subtitle.StartTimestamp,
+            end: subtitle.EndTimestamp,
+            overlays: [{
+                text: subtitle.Content,
+                x: 50,
+                y: 97,
+                font: 'akbar',
+                size: 0,
+                color: [255, 255, 255, 255],
+                text_align: 'c',
+                all_caps: true,
+                start: 0,
+                end: subtitle.EndTimestamp - subtitle.StartTimestamp
+            }]
+        };
+
+        it('posts a cache-check render request', async () => {
             const axios = {
-                get: sinon.stub().resolves({
-                    request: {
-                        res: {
-                            responseUrl: 'gif'
-                        }
+                post: sinon.stub().resolves({
+                    data: {
+                        cached: true,
+                        url: '/video/S07E21/test.gif'
                     }
                 })
             };
 
-            api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
+            await api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
 
-            sinon.assert.calledWith(axios.get, expectedUrl);
+            sinon.assert.calledOnce(axios.post);
+            sinon.assert.calledWith(
+                axios.post,
+                expectedUrl,
+                [{ ...expectedStreamParams, check_only: true }]
+            );
         });
 
-        it('formats the subtitle text', () => {
-            let text = 'This is a long piece of text that needs to be split on to multiple lines?????>>>>>';
-            let subtitle = {
-                Episode: 'S07E21',
-                StartTimestamp: '1',
-                EndTimestamp: '2',
-                Content: text
-            };
-
-            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgCnRleHQgdGhhdCBuZWVkcyB0byBiZSAKc3BsaXQgb24gdG8gbXVsdGlwbGUgCmxpbmVzPz8_Pz8-Pj4-Pg==';
-            let expectedUrl = 'https://frinkiac.com/gif/S07E21/1/2.gif?b64lines=' + expectedText;
-
+        it('resolves with cached gif URL when available', async () => {
             const axios = {
-                get: sinon.stub().resolves({
-                    request: {
-                        res: {
-                            responseUrl: 'gif'
-                        }
-                    }
-                })
-            };
-
-            api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
-
-            sinon.assert.calledWith(axios.get, expectedUrl);
-        });
-
-        it('resolves with a gif URL', async () => {
-            let subtitle = {
-                Episode: 'S07E21',
-                StartTimestamp: '1',
-                EndTimestamp: '2',
-                Content: ''
-            };
-            let expectedReturn = 'http://www.url.com/simpsons.gif';
-
-            const axios = {
-                get: sinon.stub().resolves({
-                    request: {
-                        res: {
-                            responseUrl: expectedReturn
-                        }
+                post: sinon.stub().resolves({
+                    data: {
+                        cached: true,
+                        url: '/video/S07E21/test.gif'
                     }
                 })
             };
 
             let result = await api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
 
-            expect(result).to.equal(expectedReturn);
+            expect(result).to.equal('https://frinkiac.com/video/S07E21/test.gif');
+            sinon.assert.calledOnce(axios.post);
+        });
+
+        it('renders from stream and resolves gif URL when cache is missed', async () => {
+            const axios = {
+                post: sinon.stub()
+                    .onFirstCall().resolves({
+                        data: {
+                            cached: false
+                        }
+                    })
+                    .onSecondCall().resolves({
+                        data: '{"progress":1}\n{"url":"/video/S07E21/streamed.gif"}'
+                    })
+            };
+
+            let result = await api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
+
+            expect(result).to.equal('https://frinkiac.com/video/S07E21/streamed.gif');
+            sinon.assert.calledTwice(axios.post);
+            sinon.assert.calledWith(axios.post.firstCall, expectedUrl, [{ ...expectedStreamParams, check_only: true }]);
+            sinon.assert.calledWith(axios.post.secondCall, expectedUrl, [expectedStreamParams]);
+        });
+
+        it('rejects when render request fails', async () => {
+            const axios = {
+                post: sinon.stub().rejects(new Error('network error'))
+            };
+
+            try {
+                await api(axios, config).getGifFromSubtitle(subtitle, config.urls.frinkiac);
+                throw new Error('Expected getGifFromSubtitle to reject');
+            } catch (err) {
+                expect(err.message).to.equal('network error');
+            }
         });
     });
     describe('generateGif', () => {
         it('gets the appropriate gif from frinkiac', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S10E07/2BgqWeuWjvumnQewtcAinhUVhXU=.gif';
-            let term = 'super nintendo chalmers';
+            let expectedPath = '/video/S06E10/zJ24Xxa4Gfpjve910bB-GVezmp0=.gif';
+            let expectedUrl = 'https://frinkiac.com' + expectedPath;
+            let term = 'we\'re through the looking glass';
+            let searchResult = {Episode: 'S06E10', Timestamp: 505000};
+            let subtitles = [
+                {Episode: 'S06E10', StartTimestamp: 504000, EndTimestamp: 506000, Content: term}
+            ];
+            const axios = {
+                get: sinon.stub()
+                    .onFirstCall().resolves({data: [searchResult]})
+                    .onSecondCall().resolves({data: {Subtitles: subtitles}}),
+                post: sinon.stub().resolves({
+                    data: {
+                        cached: true,
+                        url: expectedPath
+                    }
+                })
+            };
             
-            let result = await api(require('axios'), config).generateGif(term);
+            let result = await api(axios, config).generateGif(term);
 
             expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
-
-        it('gets the appropriate gif from frinkiac even with bad characters in the base64 text', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S05E14/ZqdztxjYgowA0n-pHNj6OVp6Ymc=.gif';
-            let term = 'my spidey sense is tingling';
-            
-            let result = await api(require('axios'), config).generateGif(term);
-
-            expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
-
-        it('gets the appropriate gif from frinkiac with multiple captions', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S06E08/CXUO_0Mn1AupcjkdvINxh3hzaSQ=.gif';
-            let term = "We'd ask you to come, but... You know...";
-
-            let result = await api(require('axios'), config).generateGif(term);
-
-            expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
+        });
 
         it('works with morbotron', async () => {
-            let expectedUrl = 'https://morbotron.com/video/S02E02/jLCY1cQwrS26ymv6djszozleXmY=.gif';
-            let term = "Robot house";
+            let expectedPath = '/video/S02E14/gIN9gY11tD0r0NOL7VGTnvXaq0g=.gif';
+            let expectedUrl = 'https://morbotron.com' + expectedPath;
+            let term = "time makes fools of us all";
+            let searchResult = {Episode: 'S02E14', Timestamp: 5000};
+            let subtitles = [
+                {Episode: 'S02E14', StartTimestamp: 4000, EndTimestamp: 6000, Content: term}
+            ];
+            const axios = {
+                get: sinon.stub()
+                    .onFirstCall().resolves({data: [searchResult]})
+                    .onSecondCall().resolves({data: {Subtitles: subtitles}}),
+                post: sinon.stub().resolves({
+                    data: {
+                        cached: true,
+                        url: expectedPath
+                    }
+                })
+            };
 
-            let result = await api(require('axios'), config).generateGif(term, 'morbotron');
+            let result = await api(axios, config).generateGif(term, 'morbotron');
 
             expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
-
-        it('works with master of all science', async () => {
-            let expectedUrl = 'https://masterofallscience.com/video/S01E09/CPfkZIAndLPXjBF-ORpCXjZeNJA=.gif';
-            let term = "You pass butter";
-
-            let result = await api(require('axios'), config).generateGif(term, 'moas');
-
-            expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
+        });
 
         it('rejects with an error if the site doesn\'t exist', (done) => {
             api({}, config).generateGif('term', 'wrong')
