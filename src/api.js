@@ -62,7 +62,7 @@ module.exports = (axios, config) => {
             return new Promise(async (resolve, reject) => {
                 try {
                     let cache = await axios.post(`https://${url}/api/render/gif/stream`, [{...streamParams, check_only: true}]);
-                    if (Object.hasOwn(cache.data, 'cached') && !cache.data.cached) {
+                    if (cache.data.hasOwnProperty('cached') && !cache.data.cached) {
                         let streamResponse = await axios.post(`https://${url}/api/render/gif/stream`, [streamParams]);
                         let streamArray = streamResponse.data.trim().split(/\r?\n/);
                         gifPath = JSON.parse(streamArray[streamArray.length - 1]).url;
