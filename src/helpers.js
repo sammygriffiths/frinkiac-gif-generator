@@ -15,7 +15,7 @@ const helpers = {
             }
 
             if (chosenSubtitle) {
-                return resolve(helpers.checkOtherSubtitleMatches(term, subtitles, i));
+                return resolve(chosenSubtitle);
             }
 
             return reject(new Error('Subtitle with timestamp "' + timestamp + '" not found'));

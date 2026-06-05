@@ -15,22 +15,6 @@ describe('helpers', () => {
             expect(result).to.equal(subtitles[1]);
         });
 
-        it('adds in other matching subtitles', async () => {
-            let subtitles = [
-                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This' },
-                { "StartTimestamp": 3, "EndTimestamp": 10, Content: 'is' },
-                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'content!' },
-            ];
-            let term = 'This is content!';
-
-            let result = await helpers.getAppropriateSubtitle(term, subtitles, 7);
-
-            expect(result.StartTimestamp).to.equal(1);
-            expect(result.EndTimestamp).to.equal(20);
-            expect(result.Content).to.equal('This is content!');
-
-        })
-
         it('rejects when a matching subtitle isn\'t found', (done) => {
             let subtitles = [
                 { "StartTimestamp": 1, "EndTimestamp": 3, Content: "nope" },

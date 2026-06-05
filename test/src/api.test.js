@@ -183,15 +183,6 @@ describe('API', () => {
             expect(result).to.equal(expectedUrl);
         }).timeout(10000);
 
-        it('gets the appropriate gif from frinkiac with multiple captions', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S06E08/CXUO_0Mn1AupcjkdvINxh3hzaSQ=.gif';
-            let term = "We'd ask you to come, but... You know...";
-
-            let result = await api(require('axios'), config).generateGif(term);
-
-            expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
-
         it('works with morbotron', async () => {
             let expectedUrl = 'https://morbotron.com/video/S02E14/gIN9gY11tD0r0NOL7VGTnvXaq0g=.gif';
             let term = "time makes fools of us all";
