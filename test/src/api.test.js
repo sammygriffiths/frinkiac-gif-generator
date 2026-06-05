@@ -175,22 +175,54 @@ describe('API', () => {
     });
     describe('generateGif', () => {
         it('gets the appropriate gif from frinkiac', async () => {
-            let expectedUrl = 'https://frinkiac.com/video/S06E10/zJ24Xxa4Gfpjve910bB-GVezmp0=.gif';
+            let expectedPath = '/video/S06E10/zJ24Xxa4Gfpjve910bB-GVezmp0=.gif';
+            let expectedUrl = 'https://frinkiac.com' + expectedPath;
             let term = 'we\'re through the looking glass';
+            let searchResult = {Episode: 'S06E10', Timestamp: 505000};
+            let subtitles = [
+                {Episode: 'S06E10', StartTimestamp: 504000, EndTimestamp: 506000, Content: term}
+            ];
+            const axios = {
+                get: sinon.stub()
+                    .onFirstCall().resolves({data: [searchResult]})
+                    .onSecondCall().resolves({data: {Subtitles: subtitles}}),
+                post: sinon.stub().resolves({
+                    data: {
+                        cached: true,
+                        url: expectedPath
+                    }
+                })
+            };
             
-            let result = await api(require('axios'), config).generateGif(term);
+            let result = await api(axios, config).generateGif(term);
 
             expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
+        });
 
         it('works with morbotron', async () => {
-            let expectedUrl = 'https://morbotron.com/video/S02E14/gIN9gY11tD0r0NOL7VGTnvXaq0g=.gif';
+            let expectedPath = '/video/S02E14/gIN9gY11tD0r0NOL7VGTnvXaq0g=.gif';
+            let expectedUrl = 'https://morbotron.com' + expectedPath;
             let term = "time makes fools of us all";
+            let searchResult = {Episode: 'S02E14', Timestamp: 5000};
+            let subtitles = [
+                {Episode: 'S02E14', StartTimestamp: 4000, EndTimestamp: 6000, Content: term}
+            ];
+            const axios = {
+                get: sinon.stub()
+                    .onFirstCall().resolves({data: [searchResult]})
+                    .onSecondCall().resolves({data: {Subtitles: subtitles}}),
+                post: sinon.stub().resolves({
+                    data: {
+                        cached: true,
+                        url: expectedPath
+                    }
+                })
+            };
 
-            let result = await api(require('axios'), config).generateGif(term, 'morbotron');
+            let result = await api(axios, config).generateGif(term, 'morbotron');
 
             expect(result).to.equal(expectedUrl);
-        }).timeout(10000);
+        });
 
         it('rejects with an error if the site doesn\'t exist', (done) => {
             api({}, config).generateGif('term', 'wrong')
