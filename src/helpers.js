@@ -1,15 +1,6 @@
-const wrap = require('word-wrap');
 const stringSimilarity = require('string-similarity');
 
 const helpers = {
-    formatSubtitleText: (text) => {
-        let wrappedText = wrap(text, { width: 26, indent: '' });
-        let subtitleText = Buffer.from(wrappedText).toString('base64');
-        let replacedSlashText = subtitleText.replace(/\//g, '_');
-        let replacedPlusText = replacedSlashText.replace(/\+/g, '-');
-
-        return replacedPlusText;
-    },
     getAppropriateSubtitle: (term, subtitles, timestamp) => {
         return new Promise((resolve, reject) => {
             let chosenSubtitle;
@@ -23,7 +14,7 @@ const helpers = {
             }
 
             if (chosenSubtitle) {
-                return resolve(helpers.checkOtherSubtitleMatches(term, subtitles, i));
+                return resolve(chosenSubtitle);
             }
 
             return reject(new Error('Subtitle with timestamp "' + timestamp + '" not found'));

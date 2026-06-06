@@ -2,44 +2,6 @@ const expect = require('chai').expect;
 const helpers = require('../../src/helpers');
 
 describe('helpers', () => {
-    describe('formatSubtitleText', () => {
-        it('base64 encodes the text', () => {
-            let text = 'text';
-            let expectedText = 'dGV4dA==';
-            
-            let returnedText = helpers.formatSubtitleText(text);
-
-            expect(returnedText).to.equal(expectedText);
-        });
-
-        it('adds line breaks in the text where appropriate', () => {
-            let text = 'This is a long piece of text that needs to be split on to multiple lines';
-            let expectedText = 'VGhpcyBpcyBhIGxvbmcgcGllY2Ugb2YgCnRleHQgdGhhdCBuZWVkcyB0byBiZSAKc3BsaXQgb24gdG8gbXVsdGlwbGUgbGluZXM=';
-
-            let returnedText = helpers.formatSubtitleText(text);
-
-            expect(returnedText).to.equal(expectedText);
-        });
-
-        it('replaces all returned / symbols with _', () => {
-            let text = '??????';
-            let expectedText = 'Pz8_Pz8_';
-
-            let returnedText = helpers.formatSubtitleText(text);
-
-            expect(returnedText).to.equal(expectedText);
-        });
-
-        it('replaces all returned + symbols with -', () => {
-            let text = '>>>>>>';
-            let expectedText = 'Pj4-Pj4-';
-
-            let returnedText = helpers.formatSubtitleText(text);
-
-            expect(returnedText).to.equal(expectedText);
-        });
-    });
-
     describe('getAppropriateSubtitle', () => {
         it('resolves with the appropriate subtitle', async () => {
             let subtitles = [
@@ -52,22 +14,6 @@ describe('helpers', () => {
 
             expect(result).to.equal(subtitles[1]);
         });
-
-        it('adds in other matching subtitles', async () => {
-            let subtitles = [
-                { "StartTimestamp": 1, "EndTimestamp": 3, Content: 'This' },
-                { "StartTimestamp": 3, "EndTimestamp": 10, Content: 'is' },
-                { "StartTimestamp": 10, "EndTimestamp": 20, Content: 'content!' },
-            ];
-            let term = 'This is content!';
-
-            let result = await helpers.getAppropriateSubtitle(term, subtitles, 7);
-
-            expect(result.StartTimestamp).to.equal(1);
-            expect(result.EndTimestamp).to.equal(20);
-            expect(result.Content).to.equal('This is content!');
-
-        })
 
         it('rejects when a matching subtitle isn\'t found', (done) => {
             let subtitles = [

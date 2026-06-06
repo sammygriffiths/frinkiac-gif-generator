@@ -39,17 +39,41 @@ module.exports = (axios, config) => {
             })
         },
         getGifFromSubtitle: (subtitle, url) => {
-            let gif;
-            let subtitleText = helpers.formatSubtitleText(subtitle.Content);
+            let gifPath;
+
+            let streamParams = {
+                "episode": subtitle.Episode,
+                "start": subtitle.StartTimestamp,
+                "end": subtitle.EndTimestamp,
+                "overlays": [{
+                    "text": subtitle.Content,
+                    "x": 50,
+                    "y": 97,
+                    "font": "akbar",
+                    "size": 0,
+                    "color": [255, 255, 255, 255],
+                    "text_align": "c",
+                    "all_caps": true,
+                    "start": 0,
+                    "end": subtitle.EndTimestamp - subtitle.StartTimestamp
+                }]
+            };
 
             return new Promise(async (resolve, reject) => {
                 try {
-                    gif = await axios.get(`https://${url}/gif/${subtitle.Episode}/${subtitle.StartTimestamp}/${subtitle.EndTimestamp}.gif?b64lines=${subtitleText}`);
+                    let cache = await axios.post(`https://${url}/api/render/gif/stream`, [{...streamParams, check_only: true}]);
+                    if (cache.data.hasOwnProperty('cached') && !cache.data.cached) {
+                        let streamResponse = await axios.post(`https://${url}/api/render/gif/stream`, [streamParams]);
+                        let streamArray = streamResponse.data.trim().split(/\r?\n/);
+                        gifPath = JSON.parse(streamArray[streamArray.length - 1]).url;
+                    } else {
+                        gifPath = cache.data.url;
+                    }
                 } catch (err) {
                     return reject(err);
                 }
 
-                return resolve(gif.request.res.responseUrl);
+                return resolve(`https://${url}` + gifPath);
             });
         },
         generateGif: (term, site = 'frinkiac') => {

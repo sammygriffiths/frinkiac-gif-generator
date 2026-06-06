@@ -1,11 +1,12 @@
 {
   "name": "frinkiac-gif-generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate Simpsons gifs based on a search term from frinkiac.com",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha test/src --recursive"
+    "test": "mocha test/src --recursive --ignore \"test/src/live/**/*.test.js\"",
+    "test:live": "mocha test/src/live --recursive --timeout 10000"
   },
   "author": {
     "name": "Sammy Griffiths"
@@ -15,14 +16,18 @@
   },
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.7",
+    "axios": "^1.17.0",
     "string-similarity": "^4.0.4",
     "word-wrap": "^1.2.5"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^10.7.3",
-    "sinon": "^7.3.2"
+    "chai": "^6.2.2",
+    "mocha": "^11.7.6",
+    "sinon": "^22.0.0"
+  },
+  "overrides": {
+    "diff": "9.0.0",
+    "serialize-javascript": "7.0.5"
   },
   "homepage": "https://github.com/sammygriffiths/frinkiac-gif-generator",
   "keywords": [
